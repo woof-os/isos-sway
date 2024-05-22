@@ -1,0 +1,26 @@
+name: BuildISO
+
+on:
+  release:
+    types: [created, updated]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup-docker
+        uses: docker-practice/actions-setup-docker@master
+
+      - name: Build ISO
+        run: |
+          docker build --rm -t woof-os/archiso-builder:latest .
+          docker run --rm -v /tmp:/tmp --privileged woof-os/archiso-builder:latest
+
+      - name: Upload ISO
+        uses: djn24/add-asset-to-release@v1
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          path: "/tmp/woofos.iso"
